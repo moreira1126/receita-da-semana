@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receita da Semana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: mobile-first recipe card, opened from a shelf QR code. Hero, then price strip, ingredients, steps. */
+  --green: #7CC242;
+  --green-deep: #3F6B22;
+  --green-wash: #EEF6E4;
+  --ink: #23301C;
+  --muted: #5F6B58;
+  --paper: #FBFCF8;
+  --sun: #F6C343;
+  --font-display: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --font-body: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+}
+.concept {
+  background: var(--ink);
+  color: #E9EFE3;
+  font-size: 13px;
+  padding: 8px 16px;
+  text-align: center;
+}
+.concept strong { color: var(--sun); font-weight: 700; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 18px; }
+
+header.hero {
+  background: var(--green);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.hero .wrap { padding-top: 26px; padding-bottom: 34px; position: relative; z-index: 1; }
+.hero .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.badge {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: #fff;
+  color: var(--green-deep);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+.week { font-size: 14px; opacity: .95; }
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(32px, 7vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  margin: 22px 0 10px;
+  text-wrap: balance;
+  max-width: 14ch;
+}
+.hero p.lede { margin: 0; font-size: 18px; max-width: 34ch; }
+.meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+.meta span {
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.plate {
+  position: absolute;
+  right: -70px;
+  bottom: -90px;
+  width: 300px;
+  height: 300px;
+  z-index: 0;
+  opacity: .95;
+}
+@media (max-width: 560px) { .plate { width: 220px; height: 220px; right: -80px; bottom: -100px; opacity: .55; } }
+
+.price {
+  margin-top: -18px;
+  position: relative;
+  z-index: 2;
+}
+.price .card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(35,48,28,.12);
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+.price .label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+.price .val { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--green-deep); }
+.price .val small { font-size: 15px; font-weight: 600; color: var(--muted); }
+.servings { display: flex; align-items: center; gap: 6px; background: var(--green-wash); border-radius: 999px; padding: 4px; }
+.servings button {
+  font: inherit;
+  font-family: var(--font-display);
+  font-weight: 700;
+  border: 0;
+  background: transparent;
+  color: var(--green-deep);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+}
+.servings button[aria-pressed="true"] { background: var(--green); color: #fff; }
+.servings button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+@media (max-width: 560px) {
+  .price .card { grid-template-columns: 1fr 1fr; }
+  .servings { grid-column: 1 / -1; justify-content: center; }
+}
+.fine { font-size: 12.5px; color: var(--muted); margin: 8px 4px 0; }
+
+section { margin-top: 34px; }
+h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 24px;
+  margin: 0 0 6px;
+  letter-spacing: -.01em;
+}
+.sub { color: var(--muted); margin: 0 0 16px; }
+
+.where {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: var(--green-wash);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+.where svg { flex: 0 0 auto; }
+.where p { margin: 0; }
+.where strong { color: var(--green-deep); }
+
+ul.items { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #E3EAD9;
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+.item input { width: 22px; height: 22px; accent-color: var(--green-deep); margin: 0; }
+.item label { cursor: pointer; }
+.item .name { font-weight: 700; display: block; }
+.item .qty { color: var(--muted); font-size: 15px; font-variant-numeric: tabular-nums; }
+.item .cost { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.tags { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-left: 6px; vertical-align: middle; }
+.tag { font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.tag.own { background: var(--green-wash); color: var(--green-deep); }
+.tag.deal { background: #FFF1C9; color: #7A5300; }
+.item.done .name, .item.done .qty { text-decoration: line-through; color: #9AA393; }
+.pantry { margin-top: 12px; font-size: 15px; color: var(--muted); }
+
+.actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.btn {
+  font: inherit;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 11px 16px;
+  border: 2px solid var(--green-deep);
+  background: var(--green-deep);
+  color: #fff;
+  cursor: pointer;
+}
+.btn.ghost { background: transparent; color: var(--green-deep); }
+.btn:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.status { font-size: 14px; color: var(--green-deep); align-self: center; min-height: 1em; }
+
+ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 12px; }
+ol.steps li {
+  counter-increment: s;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+ol.steps li::before {
+  content: counter(s);
+  font-family: var(--font-display);
+  font-weight: 700;
+  background: var(--green);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+ol.steps p { margin: 7px 0 0; }
+ol.steps .t { font-weight: 700; }
+
+.tip {
+  border-left: 5px solid var(--sun);
+  background: #FFFBEE;
+  border-radius: 0 14px 14px 0;
+  padding: 14px 16px;
+}
+.tip p { margin: 0; }
+
+footer { margin: 44px 0 0; padding: 26px 0 40px; background: var(--ink); color: #DDE6D5; font-size: 14px; }
+footer p { margin: 0 0 6px; }
+footer strong { color: #fff; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="concept"><strong>Protótipo</strong> · Conceito de André Moreira para o desafio do Programa de Trainees Jerónimo Martins 2027. Não é uma página oficial. Preços ilustrativos.</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="top">
+      <span class="badge">Receita da semana</span>
+      <span class="week">Semana de 16 a 22 de novembro</span>
+    </div>
+    <h1>Penne cremoso com frango, cogumelos e espinafres</h1>
+    <p class="lede">Um jantar de semana com tudo o que precisa no mesmo expositor da loja.</p>
+    <div class="meta">
+      <span>25 minutos</span>
+      <span>Fácil</span>
+      <span>1 tacho e 1 frigideira</span>
+    </div>
+  </div>
+  <svg class="plate" viewBox="0 0 300 300" aria-hidden="true">
+    <circle cx="150" cy="150" r="140" fill="#fff"/>
+    <circle cx="150" cy="150" r="112" fill="#F4F1E6"/>
+    <g fill="#F2C46B" stroke="#D9A441" stroke-width="2">
+      <rect x="92" y="118" width="46" height="16" rx="6" transform="rotate(-28 115 126)"/>
+      <rect x="150" y="98" width="46" height="16" rx="6" transform="rotate(18 173 106)"/>
+      <rect x="120" y="160" width="46" height="16" rx="6" transform="rotate(-8 143 168)"/>
+      <rect x="172" y="150" width="46" height="16" rx="6" transform="rotate(40 195 158)"/>
+      <rect x="98" y="192" width="46" height="16" rx="6" transform="rotate(22 121 200)"/>
+      <rect x="160" y="196" width="46" height="16" rx="6" transform="rotate(-32 183 204)"/>
+    </g>
+    <g fill="#C98B5A"><circle cx="138" cy="140" r="9"/><circle cx="196" cy="128" r="8"/><circle cx="118" cy="182" r="8"/><circle cx="178" cy="186" r="9"/></g>
+    <g fill="#8B6B4E"><ellipse cx="160" cy="146" rx="10" ry="6"/><ellipse cx="132" cy="210" rx="9" ry="6"/><ellipse cx="206" cy="176" rx="9" ry="6"/></g>
+    <g fill="#4E8A2C"><path d="M100 150c10-14 26-12 30 0-10 10-22 8-30 0z"/><path d="M186 104c12-8 26-2 26 10-12 6-22 2-26-10z"/><path d="M150 222c8-12 24-12 28 0-10 8-20 8-28 0z"/></g>
+  </svg>
+</header>
+
+<div class="price">
+  <div class="wrap">
+    <div class="card" aria-live="polite">
+      <div>
+        <div class="label">Total</div>
+        <div class="val" id="total">11,32 €</div>
+      </div>
+      <div>
+        <div class="label">Por pessoa</div>
+        <div class="val" id="per">2,83 € <small>/ pessoa</small></div>
+      </div>
+      <div class="servings" role="group" aria-label="Número de pessoas">
+        <button type="button" data-n="2" aria-pressed="false" aria-label="2 pessoas">2</button>
+        <button type="button" data-n="4" aria-pressed="true" aria-label="4 pessoas">4</button>
+        <button type="button" data-n="6" aria-pressed="false" aria-label="6 pessoas">6</button>
+      </div>
+    </div>
+    <p class="fine">Escolha o número de pessoas: as quantidades e o preço ajustam-se.</p>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section>
+    <div class="where">
+      <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="2" y="6" width="40" height="32" rx="8" fill="#7CC242"/><rect x="8" y="13" width="28" height="4" rx="2" fill="#fff"/><rect x="8" y="21" width="28" height="4" rx="2" fill="#fff"/><rect x="8" y="29" width="28" height="4" rx="2" fill="#fff"/></svg>
+      <p><strong>Está tudo no expositor "Receita da semana"</strong>, ao lado da fruta e do Pronto a levar. A carne fica na secção de frescos, sinalizada com o mesmo autocolante verde.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ingredientes</h2>
+    <p class="sub">Vá marcando o que já está no carrinho.</p>
+    <ul class="items" id="items"></ul>
+    <p class="pantry">Da despensa: 2 dentes de alho, azeite, sal e pimenta.</p>
+    <div class="actions">
+      <button type="button" class="btn" id="copy">Copiar lista de compras</button>
+      <button type="button" class="btn ghost" id="reset">Limpar marcações</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Como fazer</h2>
+    <p class="sub">Para 4 pessoas. Com 2 ou 6, os tempos mantêm-se.</p>
+    <ol class="steps">
+      <li><div><p><span class="t">Coza a massa.</span> Num tacho com água a ferver e sal, coza o penne o tempo indicado na embalagem. Guarde meia chávena da água da cozedura.</p></div></li>
+      <li><div><p><span class="t">Doure o frango.</span> Corte o peito de frango em cubos, tempere com sal e pimenta e doure numa frigideira com um fio de azeite, 6 a 7 minutos. Retire e reserve.</p></div></li>
+      <li><div><p><span class="t">Salteie os cogumelos.</span> Na mesma frigideira, junte o alho picado e os cogumelos. Deixe cozinhar 4 minutos, até ganharem cor.</p></div></li>
+      <li><div><p><span class="t">Faça o molho.</span> Junte as natas e os espinafres e mexa até os espinafres murcharem. Volte a pôr o frango na frigideira.</p></div></li>
+      <li><div><p><span class="t">Envolva e sirva.</span> Junte a massa escorrida e um pouco da água da cozedura se o molho estiver espesso. Sirva com queijo ralado por cima.</p></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="tip">
+      <p><strong>Porque é que os cogumelos estão com desconto?</strong> Estão perto do fim da validade, mas em perfeitas condições para cozinhar hoje ou amanhã. Assim poupa e a loja desperdiça menos.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Receita da semana</strong> · loja de Silveira</p>
+    <p>Protótipo criado para uma apresentação. Os preços servem apenas para ilustrar o conceito.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Base quantities and illustrative prices for 4 people.
+  var items = [
+    { id: "massa",    name: "Penne",                 q: 500, u: "g",  price: 0.95, own: true },
+    { id: "frango",   name: "Peito de frango",       q: 600, u: "g",  price: 4.79 },
+    { id: "cogu",     name: "Cogumelos laminados",   q: 250, u: "g",  price: 1.04, deal: "-30% validade curta" },
+    { id: "espin",    name: "Espinafres",            q: 150, u: "g",  price: 1.49, own: true },
+    { id: "natas",    name: "Natas para culinária",  q: 200, u: "ml", price: 0.89, own: true },
+    { id: "queijo",   name: "Queijo ralado",         q: 80,  u: "g",  price: 2.16, own: true }
+  ];
+  var n = 4;
+  var done = {};
+  try { done = JSON.parse(localStorage.getItem("rds-done") || "{}"); } catch (e) { done = {}; }
+
+  function euro(v) { return v.toFixed(2).replace(".", ",") + " €"; }
+  function fmtQty(it, f) {
+    var v = it.q * f;
+    if (it.u === "g" && v >= 1000) return (v / 1000).toString().replace(".", ",") + " kg";
+    return Math.round(v) + " " + it.u;
+  }
+
+  var list = document.getElementById("items");
+  function render() {
+    var f = n / 4, total = 0;
+    list.innerHTML = "";
+    items.forEach(function (it) {
+      var cost = it.price * f;
+      total += cost;
+      var li = document.createElement("li");
+      li.className = "item" + (done[it.id] ? " done" : "");
+      var tags = "";
+      if (it.own) tags += '<span class="tag own">Marca própria</span>';
+      if (it.deal) tags += '<span class="tag deal">' + it.deal + "</span>";
+      li.innerHTML =
+        '<input type="checkbox" id="c-' + it.id + '"' + (done[it.id] ? " checked" : "") + ">" +
+        '<label for="c-' + it.id + '"><span class="name">' + it.name + (tags ? '<span class="tags">' + tags + "</span>" : "") + "</span>" +
+        '<span class="qty">' + fmtQty(it, f) + "</span></label>" +
+        '<span class="cost">' + euro(cost) + "</span>";
+      li.querySelector("input").addEventListener("change", function (e) {
+        done[it.id] = e.target.checked;
+        li.classList.toggle("done", e.target.checked);
+        try { localStorage.setItem("rds-done", JSON.stringify(done)); } catch (err) {}
+      });
+      list.appendChild(li);
+    });
+    document.getElementById("total").textContent = euro(total);
+    document.getElementById("per").innerHTML = euro(total / n) + " <small>/ pessoa</small>";
+  }
+
+  document.querySelectorAll(".servings button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      n = parseInt(b.getAttribute("data-n"), 10);
+      document.querySelectorAll(".servings button").forEach(function (x) {
+        x.setAttribute("aria-pressed", x === b ? "true" : "false");
+      });
+      render();
+    });
+  });
+
+  var status = document.getElementById("status");
+  document.getElementById("copy").addEventListener("click", function () {
+    var f = n / 4;
+    var text = "Receita da semana (" + n + " pessoas)\n" + items.map(function (it) {
+      return "- " + it.name + ": " + fmtQty(it, f);
+    }).join("\n");
+    try {
+      navigator.clipboard.writeText(text).then(function () {
+        status.textContent = "Lista copiada.";
+      }, function () { status.textContent = "Não foi possível copiar neste navegador."; });
+    } catch (e) { status.textContent = "Não foi possível copiar neste navegador."; }
+  });
+  document.getElementById("reset").addEventListener("click", function () {
+    done = {};
+    try { localStorage.removeItem("rds-done"); } catch (e) {}
+    status.textContent = "";
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
